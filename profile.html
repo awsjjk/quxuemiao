@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>个人信息</title>
+</head>
+<body>
+    <h1>个人中心</h1>
+    <div id="info">正在加载详细资料...</div>
+    <button onclick="logout()">退出登录</button>
+
+    <script>
+        // 页面一打开就执行
+        window.onload = async function() {
+            const token = localStorage.getItem('myToken');
+            const username = localStorage.getItem('username');
+
+            // 原理：如果没有 Token，说明没登录，直接踢回登录页
+            if (!token) {
+                alert("请先 登录！");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // 原理：拿着 Token 去后端换取详细资料
+            // 这就是所谓的“授权请求”
+            const response = await fetch('http://127.0.0.1:5000/api/user_info', {
+                method: 'GET',
+                headers: {
+                    // 按照行业标准，我们把 Token 放在请求头的 Authorization 字段里
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                document.getElementById('info').innerHTML = `
+                    <p>用户名：${username}</p>
+                    <p>手机号：${result.data.phone}</p>
+                    <p>邮箱：${result.data.email}</p>
+                `;
+            } else {
+                alert("登录过期，请重新登录");
+                window.location.href = 'login.html';
+            }
+        };
+
+        function logout() {
+            localStorage.clear(); // 清空记事本
+            window.location.href = 'login.html';
+        }
+    </script>
+
+
+<hr>
+<h3>修改我的资料</h3>
+<input type="text" id="new_phone" placeholder="新手机号">
+<input type="email" id="new_email" placeholder="新邮箱">
+<button onclick="updateData()">保存修改</button>
+
+<script>
+    async function updateData() {
+        const phone = document.getElementById('new_phone').value;
+        const email = document.getElementById('new_email').value;
+        const token = localStorage.getItem('myToken');
+
+        // 发送 PUT 请求
+        const response = await fetch('http://127.0.0.1:5000/api/update_profile', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ phone: phone, email: email })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert("修改成功！");
+            location.reload(); // 刷新页面看最新数据
+        } else {
+            alert("修改失败：" + result.msg);
+        }
+    }
+</script>
+</body>
+</html>

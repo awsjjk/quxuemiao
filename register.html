@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>用户注册</title>
+</head>
+<body>
+    <h2>从零开始：用户注册</h2>
+    <input type="text" id="reg_user" placeholder="用户名"><br>
+    <input type="password" id="reg_pass" placeholder="密码"><br>
+    <input type="text" id="reg_phone" placeholder="手机号"><br>
+    <input type="email" id="reg_email" placeholder="邮箱"><br>
+    <select id="reg_type">
+        <option value="regular">普通用户</option>
+        <option value="admin">管理员</option>
+    </select><br>
+    <button onclick="handleRegister()">立即注册</button>
+    <p><a href="login.html">已有账号？去登录</a></p>
+
+    <script>
+        async function handleRegister() {
+            const payload = {
+                username: document.getElementById('reg_user').value,
+                password: document.getElementById('reg_pass').value,
+                phone: document.getElementById('reg_phone').value,
+                email: document.getElementById('reg_email').value,
+                user_type: document.getElementById('reg_type').value
+            };
+
+            const response = await fetch('http://127.0.0.1:5000/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert(result.msg);
+                window.location.href = 'login.html'; // 注册成功跳去登录
+            } else {
+                alert("错误: " + result.msg);
+            }
+        }
+    </script>
+</body>
+</html>
