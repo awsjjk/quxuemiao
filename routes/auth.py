@@ -1,5 +1,6 @@
+from datetime import datetime
 from flask import Blueprint, request, jsonify
-from models import db, User
+from models import db, User, Parent, Tutor
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 # 原理：创建一个蓝图对象。'auth' 是它的名字
@@ -52,30 +53,60 @@ def register():
     password = data.get('password')
     phone = data.get('phone')
     email = data.get('email')
-    user_type = data.get('user_type', 'regular')  # 默认为普通用户
+
+    # user_type 约定：1 为普通用户/家长，2 为家教（根据你 models.py 的定义）
+    # 或者前端传 'parent', 'tutor'，这里做个转换
+    raw_user_type = data.get('user_type', 1)
 
     # 1. 基本校验
     if not username or not password:
         return jsonify({"code": 400, "msg": "用户名和密码不能为空"}), 400
 
-    # 2. 查重：看看数据库里有没有同名的
+    # 2. 查重：用户名、手机号、邮箱通常都是唯一的
     if User.query.filter_by(username=username).first():
         return jsonify({"code": 400, "msg": "用户名已存在"}), 400
 
-    # 3. 存入 SQLite 数据库
+    if phone and User.query.filter_by(phone=phone).first():
+        return jsonify({"code": 400, "msg": "该手机号已被注册"}), 400
+
+    # 3. 存入数据库 (使用事务处理多表关联)
     try:
+        # 创建基础用户记录
         new_user = User(
             username=username,
-            password=password,  # 暂时明文，下一步再学加密
+            password=password,  # 建议之后使用 generate_password_hash(password)
             phone=phone,
-            email=email
+            email=email,
+            user_type=raw_user_type,
+            status=1,  # 默认激活状态
+            create_time=datetime.now()
         )
         db.session.add(new_user)
+        # flush 会模拟提交获取自增 ID，但不会真正结束事务
+        db.session.flush()
+
+        # 根据用户类型，初始化对应的身份表
+        if raw_user_type == 1:
+            # 初始化家长档案
+            new_parent = Parent(user_id=new_user.id)
+            db.session.add(new_parent)
+        elif raw_user_type == 2:
+            # 初始化家教档案
+            new_tutor = Tutor(
+                user_id=new_user.id,
+                verification_status=0  # 初始为未认证
+            )
+            db.session.add(new_tutor)
+
+        # 真正提交到数据库
         db.session.commit()
         return jsonify({"code": 200, "msg": "注册成功！请前往登录"}), 200
+
     except Exception as e:
-        db.session.rollback()  # 出错时回滚，保证数据库安全
-        return jsonify({"code": 500, "msg": "系统错误"}), 500
+        db.session.rollback()  # 只要中间任何一个环节出错（如身份表创建失败），全部回滚
+        # 打印错误原因方便调试
+        print(f"Registration Error: {e}")
+        return jsonify({"code": 500, "msg": "系统错误，注册失败"}), 500
 
 
 @auth_bp.route('/update_profile', methods=['PUT'])
