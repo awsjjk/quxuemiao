@@ -111,27 +111,39 @@ def register():
 @auth_bp.route('/update_profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
-    # 1. 获取当前登录用户的 ID（从 Token 解析）
     current_user_id = get_jwt_identity()
-    user = User.query.get(current_user_id)
-
+    user = User.query.get(int(current_user_id))
     if not user:
-        return jsonify({"msg": "用户不存在"}), 404
+        return jsonify({"code": 404, "msg": "用户不存在"}), 404
 
-    # 2. 获取前端传来的新数据
     data = request.get_json()
+    if not data:
+        return jsonify({"code": 400, "msg": "请求数据为空"}), 400
 
-    # 3. 更新字段（如果前端传了新值就改，没传就保持原样）
-    if 'phone' in data:
-        user.phone = data['phone']
-    if 'email' in data:
-        user.email = data['email']
+    # 更新 User 基础字段
+    for field in ['phone', 'email', 'avatar', 'sex', 'birthday']:
+        if field in data:
+            setattr(user, field, data[field])
 
-    # 原理：SQLAlchemy 会监控对象的属性变化
-    # 我们只需 commit，它会自动生成 UPDATE 语句发送给 SQLite
+    # 更新角色详情
+    if user.user_type == 1:  # 家长
+        parent = Parent.query.filter_by(user_id=user.id).first()
+        if parent:
+            for field in ['real_name', 'address', 'location', 'children_info', 'preference']:
+                if field in data:
+                    setattr(parent, field, data[field])
+    elif user.user_type == 2:  # 家教
+        tutor = Tutor.query.filter_by(user_id=user.id).first()
+        if tutor:
+            for field in ['real_name', 'school', 'major', 'grade', 'education',
+                          'skills', 'teaching_exp', 'introduction', 'certificates',
+                          'location', 'available_time', 'hourly_rate']:
+                if field in data:
+                    setattr(tutor, field, data[field])
+
     try:
         db.session.commit()
         return jsonify({"code": 200, "msg": "资料更新成功"}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"msg": "更新失败"}), 500
+        return jsonify({"code": 500, "msg": f"更新失败: {str(e)}"}), 500
