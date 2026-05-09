@@ -1,4 +1,4 @@
-# 趣学苗 — 家教供需匹配平台 设计文档
+# 趣学喵 — 家教供需匹配平台 设计文档
 
 ## Context
 
@@ -12,8 +12,8 @@
 | 后端 | Flask 3.0 + Flask-JWT-Extended + Flask-CORS + Flask-SQLAlchemy | RESTful API |
 | 数据库 | MySQL 8.0 | 关系型数据，10 张表（复用现有 models.py） |
 | AI - 向量存储 | ChromaDB | 家教资质 + 学科知识点向量检索 |
-| AI - Embedding | 本地模型 | sentence-transformers |
-| AI - LLM | 云端 API | config.yaml 可配置（api_key / model / endpoint） |
+| AI - Embedding | 本地模型（BAAI/bge-small-zh-v1.5） | sentence-transformers |
+| AI - LLM | 云端 API | config.yaml 可配置（api_key / model / endpoint等参数） |
 | AI - 匹配策略 | 规则初筛 + RAG 检索 + LLM 打分 | 异步执行 |
 
 ## 目录结构
@@ -24,7 +24,7 @@ quxuemiao/
 │   ├── app.py                  # 应用入口 + 配置
 │   ├── config.py               # MySQL / JWT / LLM 配置
 │   ├── requirements.txt        # Python 依赖
-│   ├── models.py               # 10 张表 (复用 + 适配 MySQL)
+│   ├── models.py               # 10 张表 (复用 + 可修改 + 适配 MySQL)
 │   ├── routes/
 │   │   ├── auth.py             # 登录 / 注册 / 个人信息
 │   │   ├── demand.py           # 需求 CRUD
@@ -51,8 +51,8 @@ quxuemiao/
 │       ├── main.js
 │       ├── App.vue
 │       ├── router/index.js      # 路由 + 守卫 + 角色权限
-│       ├── views/               # 7 个页面组件
-│       ├── components/          # 6 个公共组件
+│       ├── views/               # 页面组件
+│       ├── components/          # 公共组件
 │       ├── stores/              # Pinia (auth + demand)
 │       └── api/index.js         # Axios 实例 + 拦截器
 └── .claude/
@@ -125,7 +125,7 @@ def embed(texts: list[str]) -> list[list[float]]: ...  # 本地 sentence-transfo
 
 # rag.py
 class RAGRetriever:
-    def search(self, query: str, top_k: int = 10) -> list[dict]: ...
+    def search(self, query: str, top_k: int = 10) -> list[dict]: ...  # top_k可在config.yaml中设置
 class KnowledgeBase:
     def add(self, doc: dict) -> None: ...
     def delete(self, doc_id: str) -> None: ...
@@ -166,7 +166,7 @@ class MatchAgent:
 
 ## 数据库
 
-复用现有 `models.py` 中的 10 张表，适配 MySQL (主要改动: 连接配置、JSON 字段使用 MySQL JSON 类型)：
+复用现有 `models.py` 中的 10 张表, 若需要可适当改动，适配 MySQL (主要改动: 连接配置、JSON 字段使用 MySQL JSON 类型)：
 
 - user_info / parent_info / tutor_info — 用户与身份
 - demand_info — 家教需求
