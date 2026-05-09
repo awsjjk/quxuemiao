@@ -1,7 +1,5 @@
 import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-
 # MySQL 连接配置
 MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
 MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
