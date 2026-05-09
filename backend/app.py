@@ -16,7 +16,9 @@ db.init_app(app)
 jwt = JWTManager(app)
 
 from routes.auth import auth_bp
+from routes.demand import demand_bp
 app.register_blueprint(auth_bp, url_prefix='/api')
+app.register_blueprint(demand_bp, url_prefix='/api/demand')
 
 if __name__ == '__main__':
     with app.app_context():
