@@ -1,0 +1,20 @@
+llm:
+  provider: "openai"          # openai / deepseek / qwen
+  api_key: "your-api-key"
+  model: "gpt-4o-mini"
+  base_url: "https://api.openai.com/v1"
+  temperature: 0.3
+  max_tokens: 2000
+
+embedding:
+  model: "BAAI/bge-small-zh-v1.5"
+  device: "cpu"               # cpu / cuda
+
+rag:
+  collection_name: "tutor_knowledge"
+  persist_dir: "./ai_module/chroma_db"
+  top_k: 10
+
+matching:
+  max_candidates: 50
+  top_n: 5
