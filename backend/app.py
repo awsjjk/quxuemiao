@@ -20,6 +20,9 @@ from routes.demand import demand_bp
 app.register_blueprint(auth_bp, url_prefix='/api')
 app.register_blueprint(demand_bp, url_prefix='/api/demand')
 
+from routes.match import match_bp
+app.register_blueprint(match_bp, url_prefix='/api/match')
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
