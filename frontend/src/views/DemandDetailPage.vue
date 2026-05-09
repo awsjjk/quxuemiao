@@ -1,23 +1,30 @@
 <template>
-  <div class="page">
-    <nav><span class="logo">趣学喵</span><button @click="$router.push('/dashboard')">返回</button></nav>
-    <div class="container">
-      <h2 v-if="demand">{{ demand.title }}</h2>
-      <div v-if="demand" class="detail">
-        <div class="row"><span class="label">学科</span><span>{{ demand.subject }} · {{ demand.grade }}</span></div>
-        <div class="row"><span class="label">区域</span><span>{{ demand.location || '--' }}</span></div>
-        <div class="row"><span class="label">预算</span><span>{{ demand.budget }}元/时</span></div>
-        <div class="row"><span class="label">状态</span><span>{{ statusText }}</span></div>
-        <div class="row"><span class="label">描述</span><span>{{ demand.description || '--' }}</span></div>
-        <div class="row"><span class="label">要求</span><span>{{ demand.requirements || '--' }}</span></div>
+  <div class="min-h-screen bg-gray-50">
+    <nav class="bg-white nav-shadow px-6 py-3 flex justify-between items-center">
+      <span class="text-xl font-bold text-primary flex items-center"><i class="fa fa-paw mr-2"></i>趣学喵</span>
+      <button @click="$router.push('/dashboard')" class="text-sm border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition-colors"><i class="fa fa-arrow-left mr-1"></i>返回</button>
+    </nav>
+    <div class="max-w-2xl mx-auto py-8 px-4">
+      <h2 v-if="demand" class="text-xl font-bold text-gray-800 mb-4">{{ demand.title }}</h2>
+      <div v-if="demand" class="bg-white rounded-xl card-shadow p-6">
+        <div class="flex justify-between py-3 border-b border-gray-100 text-sm"><span class="text-gray-500">学科</span><span class="text-gray-700">{{ demand.subject }} · {{ demand.grade }}</span></div>
+        <div class="flex justify-between py-3 border-b border-gray-100 text-sm"><span class="text-gray-500">区域</span><span class="text-gray-700">{{ demand.location || '--' }}</span></div>
+        <div class="flex justify-between py-3 border-b border-gray-100 text-sm"><span class="text-gray-500">预算</span><span class="text-gray-700">{{ demand.budget }}元/时</span></div>
+        <div class="flex justify-between py-3 border-b border-gray-100 text-sm"><span class="text-gray-500">状态</span><span :class="demand.status === 1 ? 'text-primary font-medium' : 'text-gray-700'">{{ statusText }}</span></div>
+        <div class="flex justify-between py-3 border-b border-gray-100 text-sm"><span class="text-gray-500">描述</span><span class="text-gray-700 text-right max-w-xs">{{ demand.description || '--' }}</span></div>
+        <div class="flex justify-between py-3 text-sm"><span class="text-gray-500">要求</span><span class="text-gray-700">{{ demand.requirements || '--' }}</span></div>
       </div>
-      <div v-if="demand && demand.status === 1" class="actions">
-        <button @click="goMatch">AI 智能匹配</button>
+      <div v-if="demand && demand.status === 1" class="mt-4">
+        <button @click="goMatch" class="bg-primary hover:bg-secondary text-white font-medium px-6 py-3 rounded-lg transition-colors shadow-md">
+          <i class="fa fa-magic mr-2"></i>AI 智能匹配
+        </button>
       </div>
-      <div v-if="demand && demand.match_status === 'done' && demand.match_result?.length" class="actions">
-        <button class="secondary" @click="goMatch">查看匹配结果</button>
+      <div v-if="demand && demand.match_status === 'done' && demand.match_result?.length" class="mt-4">
+        <button @click="goMatch" class="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-colors shadow-md">
+          <i class="fa fa-list mr-2"></i>查看匹配结果
+        </button>
       </div>
-      <p v-if="!demand" class="empty">需求不存在</p>
+      <p v-if="!demand" class="text-center py-20 text-gray-400"><i class="fa fa-inbox text-5xl mb-3 block"></i>需求不存在</p>
     </div>
   </div>
 </template>
@@ -26,38 +33,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDemandStore } from '../stores/demand'
-
-const route = useRoute()
-const router = useRouter()
-const store = useDemandStore()
+const route = useRoute(); const router = useRouter(); const store = useDemandStore()
 const demand = ref(null)
-
-const statusText = computed(() => {
-  const m = { 1: '招募中', 2: '已匹配', 3: '已完成', 4: '已取消' }
-  return m[demand.value?.status] || '--'
-})
-
-onMounted(async () => {
-  await store.fetchDetail(Number(route.params.id))
-  demand.value = store.currentDemand
-})
-
+const statusText = computed(() => ({ 1: '招募中', 2: '已匹配', 3: '已完成', 4: '已取消' }[demand.value?.status] || '--'))
+onMounted(async () => { await store.fetchDetail(Number(route.params.id)); demand.value = store.currentDemand })
 function goMatch() { router.push(`/match/${demand.value.id}`) }
 </script>
-
-<style scoped>
-.page { min-height:100vh; background:#f5f5f5; }
-nav { display:flex; justify-content:space-between; align-items:center; padding:12px 24px; background:#fff; }
-.logo { font-size:20px; font-weight:700; color:#2563eb; }
-nav button { padding:6px 14px; border:1px solid #d1d5db; border-radius:6px; background:#fff; font-size:13px; cursor:pointer; }
-.container { max-width:600px; margin:24px auto; padding:0 16px; }
-.detail { background:#fff; padding:20px; border-radius:10px; }
-.row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f3f4f6; font-size:14px; }
-.row:last-child { border:none; }
-.label { color:#6b7280; }
-.actions { margin:16px 0; }
-.actions button { padding:10px 24px; background:#2563eb; color:#fff; border:none; border-radius:8px; font-size:14px; cursor:pointer; margin-right:8px; }
-.actions button.secondary { background:#059669; }
-.empty { text-align:center; color:#9ca3af; padding:48px 0; }
-h2 { margin-bottom:16px; }
-</style>

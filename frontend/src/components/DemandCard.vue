@@ -1,19 +1,21 @@
 <template>
-  <div class="card" @click="$emit('click')">
-    <div class="header">
-      <span class="title">{{ demand.title }}</span>
-      <span class="tag" :class="statusClass">{{ statusText }}</span>
+  <div class="bg-white rounded-lg p-4 border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" @click="$emit('click')">
+    <div class="flex justify-between items-start mb-2">
+      <span class="font-semibold text-gray-800">{{ demand.title }}</span>
+      <span class="text-xs px-2 py-0.5 rounded-full" :class="demand.status === 1 ? 'bg-light text-primary' : 'bg-gray-100 text-gray-500'">{{ statusText }}</span>
     </div>
-    <div class="info">
-      <span>{{ demand.subject }} · {{ demand.grade }}</span>
-      <span v-if="demand.location">{{ demand.location }}</span>
-      <span v-if="demand.budget">{{ demand.budget }}元/时</span>
+    <div class="flex gap-4 text-xs text-gray-500 flex-wrap">
+      <span><i class="fa fa-book mr-1"></i>{{ demand.subject }} · {{ demand.grade }}</span>
+      <span v-if="demand.location"><i class="fa fa-map-marker mr-1"></i>{{ demand.location }}</span>
+      <span v-if="demand.budget"><i class="fa fa-cny mr-1"></i>{{ demand.budget }}元/时</span>
     </div>
-    <div class="actions" v-if="demand.status === 1" @click.stop>
-      <button @click="$emit('match')" :disabled="matching">AI 智能匹配</button>
-    </div>
-    <div class="actions" v-if="demand.match_status === 'done' && demand.match_result" @click.stop>
-      <button class="secondary" @click="$emit('viewMatch')">查看匹配结果</button>
+    <div class="flex gap-2 mt-3" @click.stop>
+      <button v-if="demand.status === 1" @click="$emit('match')" :disabled="matching" class="text-xs bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded transition-colors disabled:opacity-50">
+        <i class="fa fa-magic mr-1"></i>AI 匹配
+      </button>
+      <button v-if="demand.match_status === 'done' && demand.match_result" @click="$emit('viewMatch')" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded transition-colors">
+        <i class="fa fa-list mr-1"></i>查看匹配结果
+      </button>
     </div>
   </div>
 </template>
@@ -22,22 +24,6 @@
 import { computed } from 'vue'
 const props = defineProps({ demand: Object, matching: Boolean })
 defineEmits(['click', 'match', 'viewMatch'])
-
 const statuses = { 1: '招募中', 2: '已匹配', 3: '已完成', 4: '已取消' }
 const statusText = computed(() => statuses[props.demand.status] || '未知')
-const statusClass = computed(() => props.demand.status === 1 ? 'active' : '')
 </script>
-
-<style scoped>
-.card { background:#fff; padding:16px 20px; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,0.06); cursor:pointer; margin-bottom:10px; transition:box-shadow 0.15s; }
-.card:hover { box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-.title { font-weight:600; color:#1f2937; }
-.tag { font-size:12px; padding:2px 8px; border-radius:12px; background:#f3f4f6; color:#6b7280; }
-.tag.active { background:#dbeafe; color:#2563eb; }
-.info { display:flex; gap:12px; font-size:13px; color:#6b7280; flex-wrap:wrap; }
-.actions { margin-top:12px; display:flex; gap:8px; }
-button { padding:6px 16px; background:#2563eb; color:#fff; border:none; border-radius:6px; font-size:13px; cursor:pointer; }
-button:disabled { opacity:0.6; }
-button.secondary { background:#059669; }
-</style>

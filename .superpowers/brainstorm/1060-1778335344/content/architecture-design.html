@@ -1,0 +1,72 @@
+<h2>Section 1: 整体架构 & 目录结构</h2>
+<p class="subtitle">前后端分离 + AI 独立模块 + MySQL</p>
+
+<div class="mockup">
+  <div class="mockup-header">系统架构总览</div>
+  <div class="mockup-body">
+    <div style="display:flex;justify-content:space-around;align-items:center;padding:20px 0;flex-wrap:wrap;gap:16px">
+      <div style="background:#1e1e2e;border-radius:10px;padding:16px;text-align:center;min-width:140px">
+        <div style="color:#a6e3a1;font-weight:bold;margin-bottom:8px">Vue 3 + Vite</div>
+        <div style="color:#a6adc8;font-size:11px">:5173</div>
+        <div style="color:#a6adc8;font-size:11px">SPA 前端</div>
+      </div>
+      <div style="color:#f9e2af;font-size:22px">←→</div>
+      <div style="background:#1e1e2e;border-radius:10px;padding:16px;text-align:center;min-width:140px">
+        <div style="color:#89b4fa;font-weight:bold;margin-bottom:8px">Flask REST API</div>
+        <div style="color:#a6adc8;font-size:11px">:5000</div>
+        <div style="color:#a6adc8;font-size:11px">JWT 认证</div>
+      </div>
+      <div style="color:#f9e2af;font-size:22px">←→</div>
+      <div style="background:#1e1e2e;border-radius:10px;padding:16px;text-align:center;min-width:140px">
+        <div style="color:#cba6f7;font-weight:bold;margin-bottom:8px">AI Module</div>
+        <div style="color:#a6adc8;font-size:11px">RAG + Agent</div>
+        <div style="color:#a6adc8;font-size:11px">LLM API</div>
+      </div>
+      <div style="color:#f9e2af;font-size:22px">←→</div>
+      <div style="background:#1e1e2e;border-radius:10px;padding:16px;text-align:center;min-width:140px">
+        <div style="color:#f38ba8;font-weight:bold;margin-bottom:8px">MySQL</div>
+        <div style="color:#a6adc8;font-size:11px">:3306</div>
+        <div style="color:#a6adc8;font-size:11px">结构化数据</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+<h3>项目目录结构</h3>
+<div style="background:#1e1e2e;color:#cdd6f4;padding:16px;border-radius:8px;font-size:12px;line-height:1.7">
+<span style="color:#89b4fa">quxuemiao/</span><br>
+├── <span style="color:#89b4fa">backend/</span>                    <span style="color:#a6adc8">← Flask REST API</span><br>
+│&nbsp;&nbsp; ├── app.py                  <span style="color:#a6adc8">← 应用入口 + 配置</span><br>
+│&nbsp;&nbsp; ├── config.py               <span style="color:#a6adc8">← MySQL/JWT/LLM 配置</span><br>
+│&nbsp;&nbsp; ├── models.py               <span style="color:#a6adc8">← 10 张表 (复用现有)</span><br>
+│&nbsp;&nbsp; ├── routes/<br>
+│&nbsp;&nbsp; │&nbsp;&nbsp; ├── auth.py    <span style="color:#a6adc8">← 登录/注册/个人信息</span><br>
+│&nbsp;&nbsp; │&nbsp;&nbsp; ├── demand.py  <span style="color:#a6adc8">← 需求发布/管理</span><br>
+│&nbsp;&nbsp; │&nbsp;&nbsp; ├── order.py   <span style="color:#a6adc8">← 订单管理</span><br>
+│&nbsp;&nbsp; │&nbsp;&nbsp; └── rating.py  <span style="color:#a6adc8">← 服务评价</span><br>
+│&nbsp;&nbsp; └── utils/<br>
+│&nbsp;&nbsp; &nbsp;&nbsp; └── decorators.py<br>
+├── <span style="color:#cba6f7">ai_module/</span>                   <span style="color:#a6adc8">← 独立 AI 模块</span><br>
+│&nbsp;&nbsp; ├── __init__.py<br>
+│&nbsp;&nbsp; ├── llm_client.py           <span style="color:#a6adc8">← LLM API 调用封装</span><br>
+│&nbsp;&nbsp; ├── rag.py                  <span style="color:#a6adc8">← RAG 知识库检索</span><br>
+│&nbsp;&nbsp; ├── agent.py                <span style="color:#a6adc8">← Agent 匹配逻辑</span><br>
+│&nbsp;&nbsp; ├── embedding.py            <span style="color:#a6adc8">← 向量嵌入 (家教/知识点)</span><br>
+│&nbsp;&nbsp; └── data/                   <span style="color:#a6adc8">← 知识库原始数据</span><br>
+│&nbsp;&nbsp; &nbsp;&nbsp; ├── subjects.json<br>
+│&nbsp;&nbsp; &nbsp;&nbsp; └── tutor_knowledge/<br>
+├── <span style="color:#a6e3a1">frontend/</span>                   <span style="color:#a6adc8">← Vue 3 + Vite SPA</span><br>
+│&nbsp;&nbsp; ├── vite.config.js<br>
+│&nbsp;&nbsp; ├── package.json<br>
+│&nbsp;&nbsp; └── src/<br>
+│&nbsp;&nbsp; &nbsp;&nbsp; ├── main.js<br>
+│&nbsp;&nbsp; &nbsp;&nbsp; ├── App.vue<br>
+│&nbsp;&nbsp; &nbsp;&nbsp; ├── router/        <span style="color:#a6adc8">← Vue Router</span><br>
+│&nbsp;&nbsp; &nbsp;&nbsp; ├── views/         <span style="color:#a6adc8">← 页面组件</span><br>
+│&nbsp;&nbsp; &nbsp;&nbsp; ├── components/    <span style="color:#a6adc8">← 公共组件</span><br>
+│&nbsp;&nbsp; &nbsp;&nbsp; ├── stores/        <span style="color:#a6adc8">← Pinia 状态管理</span><br>
+│&nbsp;&nbsp; &nbsp;&nbsp; └── api/           <span style="color:#a6adc8">← Axios 请求封装</span><br>
+└── requirements.txt
+</div>
+</div>

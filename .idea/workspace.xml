@@ -4,10 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5f75f76f-0277-4ec5-bbb4-9f87c1a8eedf" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/1.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+    <list default="true" id="5f75f76f-0277-4ec5-bbb4-9f87c1a8eedf" name="更改" comment="feat:">
+      <change afterPath="$PROJECT_DIR$/.claude/settings.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claude/skills/frontend-design/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claude/skills/frontend-design/SKILL.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claude/skills/webapp-testing/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claude/skills/webapp-testing/SKILL.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claude/skills/webapp-testing/examples/console_logging.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claude/skills/webapp-testing/examples/element_discovery.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claude/skills/webapp-testing/examples/static_html_automation.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claude/skills/webapp-testing/scripts/with_server.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.superpowers/brainstorm/1060-1778335344/content/ai-module.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.superpowers/brainstorm/1060-1778335344/content/api-routes.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.superpowers/brainstorm/1060-1778335344/content/architecture-design.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.superpowers/brainstorm/1060-1778335344/content/architecture-options.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.superpowers/brainstorm/1060-1778335344/content/frontend-design.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.superpowers/brainstorm/1060-1778335344/state/server-stopped" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.superpowers/brainstorm/1060-1778335344/state/server.pid" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/superpowers/plans/2026-05-09-quxuemiao-platform.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/index_o.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,14 +135,28 @@
       <workItem from="1770711235870" duration="2819000" />
       <workItem from="1778326755412" duration="3313000" />
       <workItem from="1778332630267" duration="229000" />
+      <workItem from="1778349083970" duration="230000" />
     </task>
+    <task id="LOCAL-00001" summary="feat:">
+      <option name="closed" value="true" />
+      <created>1778349145766</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1778349145766</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat:" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat:" />
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/quxuemiao$flaskProject1.coverage" NAME="flaskProject1 覆盖结果" MODIFIED="1778328768713" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/quxuemiao$flaskProject1.coverage" NAME="flaskProject1 覆盖结果" MODIFIED="1778349191223" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/flaskProject1$flaskProject1.coverage" NAME="flaskProject1 覆盖结果" MODIFIED="1770714781824" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/quxuemiao$1.coverage" NAME="1 覆盖结果" MODIFIED="1778328774526" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/flaskProject1$Flask__app_py_.coverage" NAME="Flask (app.py) 覆盖结果" MODIFIED="1770569484661" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
