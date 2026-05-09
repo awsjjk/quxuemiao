@@ -74,6 +74,9 @@ class Demand(db.Model):
     budget = db.Column(db.Numeric(10, 2))
     requirements = db.Column(db.Text)
     status = db.Column(db.Integer, default=1) # 1:招募中, 2:已匹配, 3:已完成, 4:已取消
+    match_result = db.Column(db.JSON, comment='AI匹配结果')
+    match_status = db.Column(db.String(20), default='pending', comment='匹配状态: pending/processing/done/failed')
+    match_time = db.Column(db.DateTime, comment='匹配完成时间')
     create_time = db.Column(db.DateTime, default=datetime.now)
     tags = db.Column(db.JSON)
     is_urgent = db.Column(db.Boolean, default=False)
