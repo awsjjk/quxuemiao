@@ -41,7 +41,7 @@ def _embed_text(text):
     import sys
     sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'ai_module'))
     from embedding import embed
-    return embed(text)
+    return embed(text)[0]
 
 
 @ai_assistant_bp.route('/faq_list', methods=['GET'])
