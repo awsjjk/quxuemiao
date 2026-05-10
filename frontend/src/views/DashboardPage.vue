@@ -131,7 +131,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useDemandStore } from '../stores/demand'
 import DemandForm from '../components/DemandForm.vue'
@@ -139,6 +139,7 @@ import DemandCard from '../components/DemandCard.vue'
 import TutorSearch from '../components/TutorSearch.vue'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const store = useDemandStore()
 
@@ -151,7 +152,10 @@ const roleText = computed(() => ({ 1: '家长', 2: '家教', 3: '管理员' }[au
 
 onMounted(async () => {
   if (!auth.user) await auth.fetchUser()
-  if (auth.user?.user_type === 1) await store.fetchList()
+  if (auth.user?.user_type === 1) {
+    await store.fetchList()
+    if (route.query.search === 'open') showTutorSearch.value = true
+  }
 })
 
 function onCreated({ id, mode }) {
@@ -163,9 +167,9 @@ function onCreated({ id, mode }) {
 function onModeSelect({ mode }) {
   if (mode === 'ai') {
     showForm.value = false
-    store.runMatch(lastCreatedDemandId.value).then(() => {
-      matchingId.value = null
-    })
+    const demandId = lastCreatedDemandId.value
+    store.runMatch(demandId)
+    router.push(`/match/${demandId}`)
   } else if (mode === 'manual') {
     showForm.value = false
     showTutorSearch.value = true
