@@ -158,9 +158,11 @@ def update_profile():
 
     for field in ['phone', 'email', 'avatar', 'sex', 'birthday']:
         if field in data:
-            if field == 'birthday' and data[field]:
-                from datetime import datetime
-                setattr(user, field, datetime.strptime(data[field], '%Y-%m-%d').date())
+            if field == 'birthday':
+                if data[field]:
+                    setattr(user, field, datetime.strptime(data[field], '%Y-%m-%d').date())
+                else:
+                    setattr(user, field, None)
             else:
                 setattr(user, field, data[field])
 
