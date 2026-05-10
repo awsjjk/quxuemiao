@@ -36,7 +36,7 @@ def create():
         remark=data.get('remark', ''),
     )
     db.session.add(order)
-    demand.status = 3  # 已完成
+    demand.status = 2  # 已匹配
     db.session.commit()
 
     return jsonify({
