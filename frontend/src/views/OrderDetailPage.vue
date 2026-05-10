@@ -115,7 +115,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { orderAPI, courseAPI } from '../api'
 import OrderCard from '../components/OrderCard.vue'
@@ -129,11 +129,17 @@ const statusClass = computed(() => {
   const s = order.value?.status
   return s === 1 ? 'text-yellow-600 font-medium' : s === 2 ? 'text-blue-600 font-medium' : s === 3 ? 'text-green-600 font-medium' : 'text-gray-700'
 })
-onMounted(async () => {
-  const id = route.params.id
-  if (id === '0') { const res = await orderAPI.list(); orders.value = res.data || [] }
-  else { loading.value = true; try { const res = await orderAPI.detail(Number(id)); order.value = res.code === 200 ? res.data : null; await fetchCourses() } catch (e) { order.value = null } finally { loading.value = false } }
-})
+
+async function loadData(id) {
+  if (id === '0') {
+    const res = await orderAPI.list(); orders.value = res.data || []
+  } else {
+    loading.value = true; order.value = null; courses.value = []; rated.value = false
+    try { const res = await orderAPI.detail(Number(id)); order.value = res.code === 200 ? res.data : null; if (res.code === 200) await fetchCourses() } catch (e) { order.value = null } finally { loading.value = false }
+  }
+}
+onMounted(() => loadData(route.params.id))
+watch(() => route.params.id, (newId) => { if (newId) loadData(newId) })
 async function fetchCourses() { try { const res = await courseAPI.list(Number(route.params.id)); courses.value = res.data } catch (e) {} }
 async function finishOrder() { saving.value = true; try { await orderAPI.updateStatus(order.value.id, 3); order.value.status = 3 } catch (e) { alert(e.response?.data?.msg || '操作失败') } finally { saving.value = false } }
 async function createCourse() {
