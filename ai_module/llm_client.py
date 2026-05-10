@@ -11,6 +11,9 @@ with open(_config_path, 'r', encoding='utf-8') as f:
 _llm_config = _config['llm']
 _api_url = f"{_llm_config['base_url']}/v1/chat/completions"
 _api_key = _llm_config['api_key']
+if _api_key.startswith('${') and _api_key.endswith('}'):
+    import os
+    _api_key = os.environ.get(_api_key[2:-1], '')
 _model = _llm_config['model']
 _temperature = _llm_config.get('temperature', 0.3)
 _max_tokens = _llm_config.get('max_tokens', 2000)

@@ -21,6 +21,9 @@ _threshold = _config['faq']['similarity_threshold']
 _llm_cfg = _config['llm']
 _api_url = f"{_llm_cfg['base_url']}/v1/chat/completions"
 _api_key = _llm_cfg['api_key']
+if _api_key.startswith('${') and _api_key.endswith('}'):
+    import os
+    _api_key = os.environ.get(_api_key[2:-1], '')
 _model = _llm_cfg['model']
 _temperature = _llm_cfg.get('temperature', 0.1)
 _max_tokens = _llm_cfg.get('max_tokens', 300)

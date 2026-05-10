@@ -1,6 +1,6 @@
 llm:
   provider: "deepseek"
-  api_key: "sk-4cfd0619be0d4057ab525d46adc66244"
+  api_key: "${DEEPSEEK_API_KEY}"
   model: "deepseek-v4-flash"
   base_url: "https://api.deepseek.com"
   temperature: 0.1
