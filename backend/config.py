@@ -4,7 +4,10 @@ import os
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
-    SQLALCHEMY_DATABASE_URI = DATABASE_URL.replace('postgresql://', 'postgresql+psycopg://', 1).replace('postgres://', 'postgresql+psycopg://', 1)
+    uri = DATABASE_URL.replace('postgresql://', 'postgresql+psycopg://', 1).replace('postgres://', 'postgresql+psycopg://', 1)
+    if 'sslmode' not in uri:
+        uri += ('&' if '?' in uri else '?') + 'sslmode=disable'
+    SQLALCHEMY_DATABASE_URI = uri
 else:
     MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
     MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', 'admin')
