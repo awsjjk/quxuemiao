@@ -56,3 +56,40 @@ export const ratingAPI = {
   submit: data => api.post('/rating/submit', data),
   tutorRatings: tutorId => api.get(`/rating/tutor/${tutorId}`)
 }
+
+export const courseAPI = {
+  create: data => api.post('/course/create', data),
+  list: orderId => api.get(`/course/list/${orderId}`),
+  update: (id, data) => api.put(`/course/${id}`, data)
+}
+
+export const messageAPI = {
+  send: data => api.post('/message/send', data),
+  conversations: () => api.get('/message/conversations'),
+  chat: partnerId => api.get(`/message/chat/${partnerId}`)
+}
+
+export const resourceAPI = {
+  list: (params = {}) => api.get('/resource/list', { params }),
+  create: data => api.post('/resource/create', data),
+  detail: id => api.get(`/resource/${id}`)
+}
+
+export const paymentAPI = {
+  list: () => api.get('/payment/list'),
+  create: data => api.post('/payment/create', data)
+}
+
+// 消息 — 用户名搜索
+messageAPI.searchUser = username => api.get('/message/search_user', { params: { username } })
+
+// 家教搜索
+export const tutorSearchAPI = {
+  search: (params = {}) => api.get('/tutor/search', { params })
+}
+
+// AI助手
+export const aiAssistantAPI = {
+  faqList: () => api.get('/ai_assistant/faq_list'),
+  chat: data => api.post('/ai_assistant/chat', data)
+}
