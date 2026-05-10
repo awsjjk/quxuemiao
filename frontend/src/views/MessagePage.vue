@@ -71,7 +71,7 @@ import { useAuthStore } from '../stores/auth'
 import { messageAPI } from '../api'
 const route = useRoute(); const router = useRouter(); const auth = useAuthStore()
 const convs = ref([])
-const activePartner = ref(null); const activePartnerName = ref(''); const activePartnerRealName = ref(''); const activePartnerUsername = ref(''); const activePartnerType = ref(0)
+const activePartner = ref(null); const activePartnerName = ref(''); const activePartnerRealName = ref(''); const activePartnerUsername = ref(''); const activePartnerType = ref(0); const activePartnerRoleId = ref(null)
 const messages = ref([]); const newMsg = ref(''); const newPartnerName = ref('')
 const chatBox = ref(null); const searchError = ref('')
 const myId = ref(0)
@@ -86,7 +86,7 @@ onMounted(async () => {
     const name = route.query.username
     try {
       const userRes = await messageAPI.searchUser(name)
-      openChat(userRes.data.id, userRes.data.real_name, userRes.data.username, userRes.data.user_type)
+      openChat(userRes.data.id, userRes.data.real_name, userRes.data.username, userRes.data.user_type, userRes.data.role_id)
     } catch (e) {
       searchError.value = '用户不存在'
     }
@@ -94,7 +94,7 @@ onMounted(async () => {
 })
 
 const showSelectButton = computed(() => auth.user?.user_type === 1 && activePartnerType.value === 2)
-function selectTutor() { router.push(`/select-demand?tutor_id=${activePartner.value}&tutor_name=${encodeURIComponent(activePartnerRealName.value)}`) }
+function selectTutor() { router.push(`/select-demand?tutor_id=${activePartnerRoleId.value}&tutor_name=${encodeURIComponent(activePartnerRealName.value)}`) }
 
 async function startChat() {
   searchError.value = ''
@@ -106,14 +106,14 @@ async function startChat() {
   }
   try {
     const res = await messageAPI.searchUser(name)
-    openChat(res.data.id, res.data.real_name, res.data.username, res.data.user_type)
+    openChat(res.data.id, res.data.real_name, res.data.username, res.data.user_type, res.data.role_id)
     newPartnerName.value = ''
   } catch (e) {
     searchError.value = e.response?.data?.msg || '用户不存在'
   }
 }
 
-function openChat(id, realName, username, userType) { activePartner.value = id; activePartnerRealName.value = realName; activePartnerUsername.value = username; activePartnerName.value = realName; activePartnerType.value = userType || 0; loadMessages() }
+function openChat(id, realName, username, userType, roleId) { activePartner.value = id; activePartnerRealName.value = realName; activePartnerUsername.value = username; activePartnerName.value = realName; activePartnerType.value = userType || 0; activePartnerRoleId.value = roleId || null; loadMessages() }
 async function loadMessages() { const res = await messageAPI.chat(activePartner.value); messages.value = res.data; await nextTick(); chatBox.value?.scrollTo(0, chatBox.value.scrollHeight) }
 async function sendMsg() {
   const content = newMsg.value.trim(); if (!content) return
