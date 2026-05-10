@@ -5,6 +5,7 @@ __pycache__/
 # 虚拟环境
 venv/
 env/
+.venv/
 
 # 数据库
 *.db
@@ -12,6 +13,20 @@ env/
 
 # 敏感信息
 .env
+
+# Frontend
+node_modules/
+dist/
+
+# ChromaDB
+chroma_db/
+
+# Env variants
+.env.local
+.env.production.local
+
+# Claude superpowers
+.superpowers/
 
 # 编辑器配置
 .vscode/
