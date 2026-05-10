@@ -60,7 +60,7 @@
       <div class="flex-1 space-y-3">
         <p v-if="!results.length && !loading" class="text-gray-400 text-center py-12">点击「搜索」查看符合条件的家教</p>
         <p v-if="loading" class="text-gray-400 text-center py-12">搜索中...</p>
-        <TutorCard v-for="t in results" :key="t.tutor_id" :tutor="t" @chat="handleChat" @detail="handleDetail" />
+        <TutorCard v-for="t in results" :key="t.tutor_id" :tutor="t" @chat="handleChat" />
       </div>
     </div>
   </div>
@@ -109,9 +109,6 @@ async function search() {
 }
 
 function handleChat(tutor) {
-  router.push({ path: '/messages', query: { username: tutor.username } })
-}
-function handleDetail(tutor) {
   router.push({ path: '/messages', query: { username: tutor.username } })
 }
 </script>

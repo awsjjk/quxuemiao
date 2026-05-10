@@ -8,7 +8,7 @@
       <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center"><i class="fa fa-magic text-primary mr-2"></i>AI 匹配结果</h2>
       <MatchLoading v-if="status === 'pending' || status === 'processing'" />
       <div v-else-if="status === 'done' && results.length">
-        <TutorCard v-for="(t, i) in results" :key="t.tutor_id" :tutor="t" :rank="i+1" :selected="selectedTutor === t.tutor_id" @select="handleSelect" />
+        <TutorCard v-for="(t, i) in results" :key="t.tutor_id" :tutor="t" :rank="i+1" :selected="selectedTutor === t.tutor_id" @select="handleSelect" @chat="handleChat" />
         <button v-if="selectedTutor" @click="createOrder" class="w-full bg-primary hover:bg-secondary text-white font-medium py-3 rounded-lg mt-3 transition-colors shadow-md">
           <i class="fa fa-check-circle mr-2"></i>创建订单
         </button>
@@ -83,6 +83,7 @@ async function poll() {
   }
 }
 function handleSelect(tutorId) { selectedTutor.value = tutorId }
+function handleChat(tutor) { router.push({ path: '/messages', query: { username: tutor.username } }) }
 async function createOrder() {
   try { const res = await orderAPI.create({ demand_id: demandId, tutor_id: selectedTutor.value }); router.push(`/order/${res.data.id}`) }
   catch (e) { alert(e.response?.data?.msg || '创建订单失败') }

@@ -25,14 +25,9 @@
       <span v-if="tutor.available_time && tutor.available_time.length" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{{ tutor.available_time.slice(0, 2).join(' ') }}</span>
       <span v-if="tutor.total_score" class="text-xs bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full">{{ tutor.total_score }}分</span>
     </div>
-    <div class="flex gap-2">
-      <button @click.stop="$emit('chat', tutor)" class="flex-1 bg-primary hover:bg-secondary text-white text-xs py-2 rounded-lg transition-colors">
-        <i class="fa fa-comment mr-1"></i>发起沟通
-      </button>
-      <button @click.stop="$emit('detail', tutor)" class="px-3 border border-gray-300 rounded-lg text-xs text-gray-600 hover:bg-gray-50 transition-colors">
-        详情
-      </button>
-    </div>
+    <button @click.stop="$emit('chat', tutor)" class="w-full bg-primary hover:bg-secondary text-white text-xs py-2 rounded-lg transition-colors">
+      <i class="fa fa-comment mr-1"></i>发起沟通
+    </button>
   </div>
 </template>
 
@@ -42,5 +37,5 @@ defineProps({
   rank: { type: Number, default: null },
   selected: { type: Boolean, default: false }
 })
-defineEmits(['chat', 'detail', 'select'])
+defineEmits(['chat', 'select'])
 </script>
