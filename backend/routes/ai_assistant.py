@@ -4,6 +4,7 @@ import numpy as np
 from pathlib import Path
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
+from openai import OpenAI
 
 ai_assistant_bp = Blueprint('ai_assistant', __name__)
 
@@ -17,16 +18,14 @@ with open(_FAQ_PATH, 'r', encoding='utf-8') as f:
 
 _threshold = _config['faq']['similarity_threshold']
 
-_llm_client = None
-
-
-def _get_llm_client():
-    global _llm_client
-    if _llm_client is None:
-        from openai import OpenAI
-        llm_cfg = _config['llm']
-        _llm_client = OpenAI(api_key=llm_cfg['api_key'], base_url=llm_cfg['base_url'])
-    return _llm_client, _config['llm']
+_client = OpenAI(
+    api_key=_config['llm']['api_key'],
+    base_url=_config['llm']['base_url']
+)
+_model = _config['llm']['model']
+_temperature = _config['llm'].get('temperature', 0.1)
+_max_tokens = _config['llm'].get('max_tokens', 300)
+_top_p = _config['llm'].get('top_p', 0.9)
 
 
 SYSTEM_PROMPT = (
@@ -84,17 +83,16 @@ def chat():
             "data": {"reply": best_faq['answer'], "source": "faq_match", "faq_id": best_faq['id'], "score": float(best_score)}
         }), 200
 
-    client, llm_cfg = _get_llm_client()
     try:
-        response = client.chat.completions.create(
-            model=llm_cfg['model'],
+        response = _client.chat.completions.create(
+            model=_model,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_message}
             ],
-            temperature=llm_cfg.get('temperature', 0.1),
-            max_tokens=llm_cfg.get('max_tokens', 300),
-            top_p=llm_cfg.get('top_p', 0.9)
+            temperature=_temperature,
+            max_tokens=_max_tokens,
+            top_p=_top_p
         )
         reply = response.choices[0].message.content
         return jsonify({
