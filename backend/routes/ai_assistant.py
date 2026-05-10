@@ -1,10 +1,10 @@
 import json
 import yaml
 import numpy as np
+import requests
 from pathlib import Path
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
-from openai import OpenAI
 
 ai_assistant_bp = Blueprint('ai_assistant', __name__)
 
@@ -18,14 +18,13 @@ with open(_FAQ_PATH, 'r', encoding='utf-8') as f:
 
 _threshold = _config['faq']['similarity_threshold']
 
-_client = OpenAI(
-    api_key=_config['llm']['api_key'],
-    base_url=_config['llm']['base_url']
-)
-_model = _config['llm']['model']
-_temperature = _config['llm'].get('temperature', 0.1)
-_max_tokens = _config['llm'].get('max_tokens', 300)
-_top_p = _config['llm'].get('top_p', 0.9)
+_llm_cfg = _config['llm']
+_api_url = f"{_llm_cfg['base_url']}/v1/chat/completions"
+_api_key = _llm_cfg['api_key']
+_model = _llm_cfg['model']
+_temperature = _llm_cfg.get('temperature', 0.1)
+_max_tokens = _llm_cfg.get('max_tokens', 300)
+_top_p = _llm_cfg.get('top_p', 0.9)
 
 
 SYSTEM_PROMPT = (
@@ -41,6 +40,29 @@ def _embed_text(text):
     sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'ai_module'))
     from embedding import embed
     return embed(text)[0]
+
+
+def _call_llm(user_message):
+    resp = requests.post(
+        _api_url,
+        headers={
+            "Authorization": f"Bearer {_api_key}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": _model,
+            "messages": [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_message}
+            ],
+            "temperature": _temperature,
+            "max_tokens": _max_tokens,
+            "top_p": _top_p
+        },
+        timeout=30
+    )
+    resp.raise_for_status()
+    return resp.json()["choices"][0]["message"]["content"]
 
 
 @ai_assistant_bp.route('/faq_list', methods=['GET'])
@@ -84,17 +106,7 @@ def chat():
         }), 200
 
     try:
-        response = _client.chat.completions.create(
-            model=_model,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_message}
-            ],
-            temperature=_temperature,
-            max_tokens=_max_tokens,
-            top_p=_top_p
-        )
-        reply = response.choices[0].message.content
+        reply = _call_llm(user_message)
         return jsonify({
             "code": 200,
             "data": {"reply": reply, "source": "llm"},
