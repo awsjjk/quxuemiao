@@ -40,6 +40,21 @@ app.register_blueprint(order_bp, url_prefix='/api/order')
 from routes.rating import rating_bp
 app.register_blueprint(rating_bp, url_prefix='/api/rating')
 
+from routes.course import course_bp
+app.register_blueprint(course_bp, url_prefix='/api/course')
+
+from routes.message import message_bp
+app.register_blueprint(message_bp, url_prefix='/api/message')
+
+from routes.resource import resource_bp
+app.register_blueprint(resource_bp, url_prefix='/api/resource')
+
+from routes.payment import payment_bp
+app.register_blueprint(payment_bp, url_prefix='/api/payment')
+
+from routes.tutor_search import tutor_search_bp
+app.register_blueprint(tutor_search_bp, url_prefix='/api/tutor')
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
