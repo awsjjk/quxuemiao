@@ -37,6 +37,9 @@
               <li><a @click="showForm = !showForm" class="flex items-center px-3 py-2 rounded-md hover:bg-light text-gray-700 cursor-pointer transition-colors"><i class="fa fa-plus-circle w-5 text-center mr-3 text-gray-500"></i>发布需求</a></li>
               <li><a @click="$router.push('/order/0')" class="flex items-center px-3 py-2 rounded-md hover:bg-light text-gray-700 cursor-pointer transition-colors"><i class="fa fa-list-alt w-5 text-center mr-3 text-gray-500"></i>我的订单</a></li>
               <li><a @click="$router.push('/profile')" class="flex items-center px-3 py-2 rounded-md hover:bg-light text-gray-700 cursor-pointer transition-colors"><i class="fa fa-user-circle w-5 text-center mr-3 text-gray-500"></i>个人信息</a></li>
+              <li><a @click="$router.push('/messages')" class="flex items-center px-3 py-2 rounded-md hover:bg-light text-gray-700 cursor-pointer transition-colors"><i class="fa fa-envelope w-5 text-center mr-3 text-gray-500"></i>消息</a></li>
+              <li><a @click="$router.push('/resources')" class="flex items-center px-3 py-2 rounded-md hover:bg-light text-gray-700 cursor-pointer transition-colors"><i class="fa fa-book w-5 text-center mr-3 text-gray-500"></i>教学资源</a></li>
+              <li><a @click="$router.push('/payments')" class="flex items-center px-3 py-2 rounded-md hover:bg-light text-gray-700 cursor-pointer transition-colors"><i class="fa fa-credit-card w-5 text-center mr-3 text-gray-500"></i>支付记录</a></li>
             </ul>
           </div>
         </aside>
@@ -65,8 +68,10 @@
             </div>
 
             <div v-if="showForm" class="mb-6 fade-in">
-              <DemandForm @created="onCreated" />
+              <DemandForm @created="onCreated" @mode-select="onModeSelect" />
             </div>
+
+            <TutorSearch v-if="showTutorSearch" />
 
             <div v-if="store.demands.length" class="space-y-3">
               <DemandCard v-for="d in store.demands" :key="d.id" :demand="d"
@@ -131,6 +136,7 @@ import { useAuthStore } from '../stores/auth'
 import { useDemandStore } from '../stores/demand'
 import DemandForm from '../components/DemandForm.vue'
 import DemandCard from '../components/DemandCard.vue'
+import TutorSearch from '../components/TutorSearch.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -138,6 +144,8 @@ const store = useDemandStore()
 
 const showForm = ref(false)
 const matchingId = ref(null)
+const showTutorSearch = ref(false)
+const lastCreatedDemandId = ref(null)
 
 const roleText = computed(() => ({ 1: '家长', 2: '家教', 3: '管理员' }[auth.user?.user_type] || ''))
 
@@ -146,7 +154,23 @@ onMounted(async () => {
   if (auth.user?.user_type === 1) await store.fetchList()
 })
 
-function onCreated() { showForm.value = false; store.fetchList() }
+function onCreated({ id, mode }) {
+  showForm.value = false
+  lastCreatedDemandId.value = id
+  if (!mode) store.fetchList()
+}
+
+function onModeSelect({ mode }) {
+  if (mode === 'ai') {
+    showForm.value = false
+    store.runMatch(lastCreatedDemandId.value).then(() => {
+      matchingId.value = null
+    })
+  } else if (mode === 'manual') {
+    showForm.value = false
+    showTutorSearch.value = true
+  }
+}
 async function handleMatch(demandId) { matchingId.value = demandId; await store.runMatch(demandId); matchingId.value = null; router.push(`/match/${demandId}`) }
 function handleLogout() { auth.logout(); router.push('/login') }
 </script>
