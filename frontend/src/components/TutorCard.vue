@@ -1,7 +1,8 @@
 <template>
-  <div class="bg-white rounded-xl card-shadow p-4 border border-gray-100">
+  <div :class="['bg-white rounded-xl card-shadow p-4 border transition-all cursor-pointer', selected ? 'border-primary ring-2 ring-primary/30' : 'border-gray-100 hover:border-primary/30']" @click="$emit('select', tutor.tutor_id)">
     <div class="flex items-center gap-3 mb-3">
-      <div class="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center text-xl flex-shrink-0">
+      <div v-if="rank" class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0">#{{ rank }}</div>
+      <div v-else class="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center text-xl flex-shrink-0">
         <i class="fa fa-user-graduate text-primary"></i>
       </div>
       <div class="flex-1 min-w-0">
@@ -16,17 +17,19 @@
         <span class="text-xs text-gray-400">/h</span>
       </div>
     </div>
+    <p v-if="tutor.reason" class="text-xs text-primary/80 mb-2 leading-relaxed">💡 {{ tutor.reason }}</p>
     <p class="text-xs text-gray-600 mb-3 leading-relaxed line-clamp-2">{{ tutor.introduction || '暂无简介' }}</p>
     <div class="flex flex-wrap gap-1.5 mb-3">
       <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{{ tutor.school }}</span>
       <span v-if="tutor.location" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{{ tutor.location }}</span>
       <span v-if="tutor.available_time && tutor.available_time.length" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{{ tutor.available_time.slice(0, 2).join(' ') }}</span>
+      <span v-if="tutor.total_score" class="text-xs bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full">{{ tutor.total_score }}分</span>
     </div>
     <div class="flex gap-2">
-      <button @click="$emit('chat', tutor)" class="flex-1 bg-primary hover:bg-secondary text-white text-xs py-2 rounded-lg transition-colors">
+      <button @click.stop="$emit('chat', tutor)" class="flex-1 bg-primary hover:bg-secondary text-white text-xs py-2 rounded-lg transition-colors">
         <i class="fa fa-comment mr-1"></i>发起沟通
       </button>
-      <button @click="$emit('detail', tutor)" class="px-3 border border-gray-300 rounded-lg text-xs text-gray-600 hover:bg-gray-50 transition-colors">
+      <button @click.stop="$emit('detail', tutor)" class="px-3 border border-gray-300 rounded-lg text-xs text-gray-600 hover:bg-gray-50 transition-colors">
         详情
       </button>
     </div>
@@ -34,6 +37,10 @@
 </template>
 
 <script setup>
-defineProps({ tutor: { type: Object, required: true } })
-defineEmits(['chat', 'detail'])
+defineProps({
+  tutor: { type: Object, required: true },
+  rank: { type: Number, default: null },
+  selected: { type: Boolean, default: false }
+})
+defineEmits(['chat', 'detail', 'select'])
 </script>

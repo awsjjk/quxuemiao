@@ -70,8 +70,33 @@ def _run_match(demand_id, app):
             agent = MatchAgent()
             results = agent.match(demand_dict, candidate_dicts)
 
-            # 4. 写入结果
-            demand.match_result = results
+            # 4. 充实结果 — 附加完整家教信息
+            enriched = []
+            if isinstance(results, list):
+                for r in results:
+                    tutor_id = r.get('tutor_id')
+                    ut = next((t for t in candidates if t.id == tutor_id), None)
+                    if ut:
+                        uu = User.query.get(ut.user_id)
+                        enriched.append({
+                            **r,
+                            "tutor_id": ut.id,
+                            "user_id": ut.user_id,
+                            "username": uu.username if uu else '',
+                            "real_name": ut.real_name,
+                            "school": ut.school,
+                            "major": ut.major,
+                            "education": ut.education,
+                            "grade": ut.grade,
+                            "teaching_exp": ut.teaching_exp,
+                            "hourly_rate": float(ut.hourly_rate) if ut.hourly_rate else None,
+                            "location": ut.location,
+                            "skills": ut.skills or [],
+                            "introduction": ut.introduction,
+                            "available_time": ut.available_time or [],
+                            "verification_status": ut.verification_status,
+                        })
+                demand.match_result = enriched
             demand.match_status = 'done'
             demand.match_time = datetime.now()
             db.session.commit()
