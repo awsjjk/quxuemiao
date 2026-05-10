@@ -20,6 +20,11 @@ const routes = [
     meta: { auth: true }
   },
   {
+    path: '/select-demand', name: 'SelectDemand',
+    component: () => import('../views/SelectDemandPage.vue'),
+    meta: { auth: true }
+  },
+  {
     path: '/order/:id', name: 'OrderDetail',
     component: () => import('../views/OrderDetailPage.vue'),
     meta: { auth: true }
