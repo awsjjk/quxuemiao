@@ -74,15 +74,17 @@ def _run_match(demand_id, app):
             _task_status[demand_id] = 'done'
 
     except Exception as e:
-        print(f"Match error for demand {demand_id}: {e}")
+        import traceback
+        tb = traceback.format_exc()
+        print(f"Match error for demand {demand_id}: {e}\n{tb}", flush=True)
         try:
             with app.app_context():
                 demand = Demand.query.get(demand_id)
                 if demand:
                     demand.match_status = 'failed'
                     db.session.commit()
-        except:
-            pass
+        except Exception as e2:
+            print(f"Failed to update match status: {e2}", flush=True)
         _task_status[demand_id] = 'failed'
 
 

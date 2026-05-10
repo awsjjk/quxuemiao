@@ -2,7 +2,7 @@
 import yaml
 import chromadb
 from pathlib import Path
-from embedding import embed
+from ai_module.embedding import embed
 
 _config_path = Path(__file__).parent / 'config.yaml'
 with open(_config_path, 'r', encoding='utf-8') as f:

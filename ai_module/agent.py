@@ -2,8 +2,8 @@
 import yaml
 import json
 from pathlib import Path
-from llm_client import LLMClient
-from rag import RAGRetriever
+from ai_module.llm_client import LLMClient
+from ai_module.rag import RAGRetriever
 
 _config_path = Path(__file__).parent / 'config.yaml'
 with open(_config_path, 'r', encoding='utf-8') as f:
@@ -72,17 +72,19 @@ class MatchAgent:
         )
 
         # 3. 构造 Prompt
-        user_prompt = _MATCH_PROMPT_TEMPLATE.format(
-            subject=subject,
-            grade=grade,
-            location=demand.get('location', ''),
-            budget=demand.get('budget', 0),
-            time_slots=json.dumps(demand.get('time_slots', []), ensure_ascii=False),
-            requirements=demand.get('requirements', '无'),
-            description=demand.get('description', ''),
-            knowledge_points='\n'.join(knowledge_points),
-            candidates='\n'.join(candidates_text)
-        )
+        user_prompt = _MATCH_PROMPT_TEMPLATE
+        for key, value in {
+            'subject': subject,
+            'grade': grade,
+            'location': demand.get('location', ''),
+            'budget': str(demand.get('budget', 0)),
+            'time_slots': json.dumps(demand.get('time_slots', []), ensure_ascii=False),
+            'requirements': demand.get('requirements', '无'),
+            'description': demand.get('description', ''),
+            'knowledge_points': '\n'.join(knowledge_points),
+            'candidates': '\n'.join(candidates_text)
+        }.items():
+            user_prompt = user_prompt.replace('{' + key + '}', value)
 
         system_prompt = f"你是一个家教匹配专家。结合以下 RAG 知识库参考信息辅助判断：\n{rag_context}"
 
