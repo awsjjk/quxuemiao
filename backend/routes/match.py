@@ -62,6 +62,10 @@ def _run_match(demand_id, app):
                 'requirements': demand.requirements or '', 'tags': demand.tags or []
             }
 
+            import sys, os
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            if project_root not in sys.path:
+                sys.path.insert(0, project_root)
             from ai_module.agent import MatchAgent
             agent = MatchAgent()
             results = agent.match(demand_dict, candidate_dicts)
