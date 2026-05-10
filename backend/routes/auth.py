@@ -25,22 +25,58 @@ def login():
 
 
 @auth_bp.route('/user_info', methods=['GET'])
-@jwt_required()  # 原理：这个装饰器会自动检查 Header 里的 Token 是否合法
+@jwt_required()
 def get_info():
-    # 原理：从加密的 Token 中反向解析出当时存入的 user_id
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     user = User.query.get(current_user_id)
+    if not user:
+        return jsonify({"code": 404, "msg": "用户不存在"}), 404
 
-    return jsonify({
-        "code": 200,
-        "data": {
-            "username": user.username,
-            "phone": user.phone,
-            "email": user.email
-        }
-    })
-    # 如果令牌不对，返回 403 (禁止访问)
-    # return jsonify({"code": 403, "msg": "无效的令牌"}), 403
+    data = {
+        "id": user.id,
+        "username": user.username,
+        "user_type": user.user_type,
+        "phone": user.phone,
+        "email": user.email,
+        "avatar": user.avatar,
+        "sex": user.sex,
+        "birthday": user.birthday.isoformat() if user.birthday else None,
+        "status": user.status,
+        "qq_openid": user.qq_openid,
+        "wechat_openid": user.wechat_openid,
+    }
+
+    if user.user_type == 1:
+        parent = Parent.query.filter_by(user_id=user.id).first()
+        if parent:
+            data.update({
+                "real_name": parent.real_name,
+                "address": parent.address,
+                "location": parent.location,
+                "children_info": parent.children_info or [],
+                "preference": parent.preference or {},
+            })
+    elif user.user_type == 2:
+        tutor = Tutor.query.filter_by(user_id=user.id).first()
+        if tutor:
+            data.update({
+                "real_name": tutor.real_name,
+                "id_card": tutor.id_card,
+                "school": tutor.school,
+                "major": tutor.major,
+                "grade": tutor.grade,
+                "education": tutor.education,
+                "skills": tutor.skills or [],
+                "teaching_exp": tutor.teaching_exp,
+                "introduction": tutor.introduction,
+                "certificates": tutor.certificates or [],
+                "location": tutor.location,
+                "available_time": tutor.available_time or [],
+                "hourly_rate": float(tutor.hourly_rate) if tutor.hourly_rate else None,
+                "verification_status": tutor.verification_status,
+            })
+
+    return jsonify({"code": 200, "data": data}), 200
 
 
 @auth_bp.route('/register', methods=['POST'])
@@ -111,8 +147,8 @@ def register():
 @auth_bp.route('/update_profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
-    current_user_id = get_jwt_identity()
-    user = User.query.get(int(current_user_id))
+    current_user_id = int(get_jwt_identity())
+    user = User.query.get(current_user_id)
     if not user:
         return jsonify({"code": 404, "msg": "用户不存在"}), 404
 
@@ -120,22 +156,24 @@ def update_profile():
     if not data:
         return jsonify({"code": 400, "msg": "请求数据为空"}), 400
 
-    # 更新 User 基础字段
     for field in ['phone', 'email', 'avatar', 'sex', 'birthday']:
         if field in data:
-            setattr(user, field, data[field])
+            if field == 'birthday' and data[field]:
+                from datetime import datetime
+                setattr(user, field, datetime.strptime(data[field], '%Y-%m-%d').date())
+            else:
+                setattr(user, field, data[field])
 
-    # 更新角色详情
-    if user.user_type == 1:  # 家长
+    if user.user_type == 1:
         parent = Parent.query.filter_by(user_id=user.id).first()
         if parent:
             for field in ['real_name', 'address', 'location', 'children_info', 'preference']:
                 if field in data:
                     setattr(parent, field, data[field])
-    elif user.user_type == 2:  # 家教
+    elif user.user_type == 2:
         tutor = Tutor.query.filter_by(user_id=user.id).first()
         if tutor:
-            for field in ['real_name', 'school', 'major', 'grade', 'education',
+            for field in ['real_name', 'id_card', 'school', 'major', 'grade', 'education',
                           'skills', 'teaching_exp', 'introduction', 'certificates',
                           'location', 'available_time', 'hourly_rate']:
                 if field in data:
