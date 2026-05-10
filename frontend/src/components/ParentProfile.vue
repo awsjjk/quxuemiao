@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 
 const props = defineProps({ form: { type: Object, required: true } })
 
@@ -61,11 +61,17 @@ const regions = ['和平区', '南开区', '河西区', '河东区', '河北区'
 const subjects = ['数学', '语文', '英语', '物理', '化学', '生物', '政治', '历史', '地理', '其他外语']
 const timeOptions = ['工作日晚上', '周末上午', '周末下午', '周末晚上', '每天']
 
-const children = reactive(props.form.children_info?.length ? [...props.form.children_info] : [])
-const pref = reactive({
-  subjects: props.form.preference?.subjects || [],
-  times: props.form.preference?.times || []
-})
+function initData() {
+  children.splice(0, children.length, ...(props.form.children_info?.length ? [...props.form.children_info] : []))
+  pref.subjects.splice(0, pref.subjects.length, ...(props.form.preference?.subjects || []))
+  pref.times.splice(0, pref.times.length, ...(props.form.preference?.times || []))
+}
+
+const children = reactive([])
+const pref = reactive({ subjects: [], times: [] })
+
+watch(() => props.form.children_info, initData, { immediate: true })
+watch(() => props.form.preference, initData, { immediate: true })
 
 function addChild() { children.push({ name: '', grade: '', age: null }) }
 function removeChild(idx) { children.splice(idx, 1) }

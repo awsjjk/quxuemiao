@@ -110,7 +110,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
 const props = defineProps({ form: { type: Object, required: true } })
 
@@ -119,9 +119,19 @@ const skillPresets = ['数学', '语文', '英语', '物理', '化学', '生物'
 const days = ['一', '二', '三', '四', '五', '六', '日']
 const timeSlots = ['上午', '下午', '晚上']
 
-const skills = reactive(props.form.skills?.length ? [...props.form.skills] : [])
-const certs = reactive(props.form.certificates?.length ? [...props.form.certificates] : [])
-const avail = reactive(props.form.available_time?.length ? [...props.form.available_time] : [])
+function initData() {
+  skills.splice(0, skills.length, ...(props.form.skills?.length ? [...props.form.skills] : []))
+  certs.splice(0, certs.length, ...(props.form.certificates?.length ? [...props.form.certificates] : []))
+  avail.splice(0, avail.length, ...(props.form.available_time?.length ? [...props.form.available_time] : []))
+}
+
+const skills = reactive([])
+const certs = reactive([])
+const avail = reactive([])
+
+watch(() => props.form.skills, initData, { immediate: true })
+watch(() => props.form.certificates, initData, { immediate: true })
+watch(() => props.form.available_time, initData, { immediate: true })
 
 const showCustomSkill = ref(false)
 const customSkillInput = ref('')
