@@ -14,9 +14,12 @@
         <div class="flex justify-between py-3 border-b border-gray-100 text-sm"><span class="text-gray-500">描述</span><span class="text-gray-700 text-right max-w-xs">{{ demand.description || '--' }}</span></div>
         <div class="flex justify-between py-3 text-sm"><span class="text-gray-500">要求</span><span class="text-gray-700">{{ demand.requirements || '--' }}</span></div>
       </div>
-      <div v-if="demand && demand.status === 1" class="mt-4">
+      <div v-if="demand && demand.status === 1" class="mt-4 flex gap-3">
         <button @click="goMatch" class="bg-primary hover:bg-secondary text-white font-medium px-6 py-3 rounded-lg transition-colors shadow-md">
           <i class="fa fa-magic mr-2"></i>AI 智能匹配
+        </button>
+        <button @click="goManualSearch" class="border border-primary text-primary hover:bg-primary/5 font-medium px-6 py-3 rounded-lg transition-colors">
+          <i class="fa fa-search mr-2"></i>手动筛选
         </button>
       </div>
       <div v-if="demand && demand.match_status === 'done' && demand.match_result?.length" class="mt-4">
@@ -38,4 +41,5 @@ const demand = ref(null)
 const statusText = computed(() => ({ 1: '招募中', 2: '已匹配', 3: '已完成', 4: '已取消' }[demand.value?.status] || '--'))
 onMounted(async () => { await store.fetchDetail(Number(route.params.id)); demand.value = store.currentDemand })
 function goMatch() { router.push(`/match/${demand.value.id}`) }
+function goManualSearch() { router.push('/dashboard?search=open') }
 </script>
