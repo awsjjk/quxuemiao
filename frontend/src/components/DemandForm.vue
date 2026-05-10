@@ -10,7 +10,9 @@
           <option value="">选择学科</option>
           <option value="数学">数学</option><option value="语文">语文</option>
           <option value="英语">英语</option><option value="物理">物理</option>
-          <option value="化学">化学</option>
+          <option value="化学">化学</option><option value="生物">生物</option>
+          <option value="政治">政治</option><option value="历史">历史</option>
+          <option value="地理">地理</option><option value="其他外语">其他外语</option>
         </select>
         <select v-model="form.grade" required class="px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all">
           <option value="">选择年级</option>
@@ -35,6 +37,7 @@
       <button :disabled="loading" class="w-full bg-primary hover:bg-secondary text-white font-medium py-3 rounded-lg transition-colors shadow-md hover:shadow-lg disabled:opacity-60">
         <i class="fa fa-paper-plane mr-2"></i>{{ loading ? '发布中...' : '发布需求' }}
       </button>
+      <MatchModeChoice v-if="showModeChoice" :selected="matchMode" @select="onModeSelect" />
     </form>
     <p v-if="msg" :class="msgType === 'success' ? 'text-green-600' : 'text-red-500'" class="text-sm mt-3 text-center">{{ msg }}</p>
   </div>
@@ -43,17 +46,30 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useDemandStore } from '../stores/demand'
-const emit = defineEmits(['created'])
+import MatchModeChoice from './MatchModeChoice.vue'
+const emit = defineEmits(['created', 'modeSelect'])
 const store = useDemandStore()
 const grades = ['小学一年级','小学二年级','小学三年级','小学四年级','小学五年级','小学六年级','初一','初二','初三','高一','高二','高三']
 const form = reactive({ title: '', subject: '', grade: '', location: '', budget: null, description: '', requirements: '', duration: null, frequency: '', is_urgent: false })
 const loading = ref(false)
 const msg = ref('')
 const msgType = ref('')
+const matchMode = ref('')
+const showModeChoice = ref(false)
 async function submit() {
   loading.value = true; msg.value = ''
-  try { await store.create({ ...form, time_slots: [], tags: [] }); msg.value = '发布成功'; msgType.value = 'success'; emit('created') }
+  try {
+    const res = await store.create({ ...form, time_slots: [], tags: [] })
+    msg.value = '发布成功'; msgType.value = 'success'
+    showModeChoice.value = true
+    emit('created', { id: res.data.id, mode: matchMode.value })
+  }
   catch (e) { msg.value = e.response?.data?.msg || '发布失败'; msgType.value = 'error' }
   finally { loading.value = false }
+}
+
+function onModeSelect(mode) {
+  matchMode.value = mode
+  emit('modeSelect', { mode })
 }
 </script>
