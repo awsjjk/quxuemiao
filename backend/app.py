@@ -19,6 +19,8 @@ app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = JWT_ACCESS_TOKEN_EXPIRES
 
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 jwt = JWTManager(app)
 
 # 记录每次请求
