@@ -76,6 +76,14 @@ onMounted(async () => {
   const res = await messageAPI.conversations(); convs.value = res.data
   if (route.params.partner_id) {
     activePartner.value = Number(route.params.partner_id)
+  } else if (route.query.username) {
+    const name = route.query.username
+    try {
+      const userRes = await messageAPI.searchUser(name)
+      openChat(userRes.data.id, userRes.data.username)
+    } catch (e) {
+      searchError.value = '用户不存在'
+    }
   }
 })
 

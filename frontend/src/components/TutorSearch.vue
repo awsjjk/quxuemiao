@@ -112,5 +112,6 @@ function handleChat(tutor) {
   router.push({ path: '/messages', query: { username: tutor.username } })
 }
 function handleDetail(tutor) {
+  router.push({ path: '/messages', query: { username: tutor.username } })
 }
 </script>
