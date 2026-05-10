@@ -131,8 +131,8 @@ const statusClass = computed(() => {
 })
 onMounted(async () => {
   const id = route.params.id
-  if (id === '0') { const res = await orderAPI.list(); orders.value = res.data }
-  else { loading.value = true; try { const res = await orderAPI.detail(Number(id)); order.value = res.data; await fetchCourses() } catch (e) {} finally { loading.value = false } }
+  if (id === '0') { const res = await orderAPI.list(); orders.value = res.data || [] }
+  else { loading.value = true; try { const res = await orderAPI.detail(Number(id)); order.value = res.code === 200 ? res.data : null; await fetchCourses() } catch (e) { order.value = null } finally { loading.value = false } }
 })
 async function fetchCourses() { try { const res = await courseAPI.list(Number(route.params.id)); courses.value = res.data } catch (e) {} }
 async function finishOrder() { saving.value = true; try { await orderAPI.updateStatus(order.value.id, 3); order.value.status = 3 } catch (e) { alert(e.response?.data?.msg || '操作失败') } finally { saving.value = false } }
