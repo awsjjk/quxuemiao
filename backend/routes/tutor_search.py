@@ -8,7 +8,7 @@ tutor_search_bp = Blueprint('tutor_search', __name__)
 @tutor_search_bp.route('/search', methods=['GET'])
 @jwt_required()
 def search_tutors():
-    query = Tutor.query.join(User, Tutor.user_id == User.id)
+    query = Tutor.query
 
     subject = request.args.get('subject', '').strip()
     school = request.args.get('school', '').strip()
@@ -37,9 +37,11 @@ def search_tutors():
         query = query.filter(Tutor.verification_status == 2)
 
     tutors = query.limit(50).all()
+    user_ids = [t.user_id for t in tutors]
+    users = {u.id: u for u in User.query.filter(User.id.in_(user_ids)).all()} if user_ids else {}
     result = []
     for t in tutors:
-        user = User.query.get(t.user_id)
+        user = users.get(t.user_id)
         result.append({
             "tutor_id": t.id,
             "user_id": t.user_id,
