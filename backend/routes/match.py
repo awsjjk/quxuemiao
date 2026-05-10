@@ -1,4 +1,5 @@
 import json
+import requests
 import threading
 from datetime import datetime
 from flask import Blueprint, request, jsonify
@@ -62,13 +63,34 @@ def _run_match(demand_id, app):
                 'requirements': demand.requirements or '', 'tags': demand.tags or []
             }
 
-            import sys, os
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            if project_root not in sys.path:
-                sys.path.insert(0, project_root)
-            from ai_module.agent import MatchAgent
-            agent = MatchAgent()
-            results = agent.match(demand_dict, candidate_dicts)
+            import os
+            hf_url = os.environ.get('HF_MATCH_API_URL', '')
+            if hf_url:
+                hf_resp = requests.post(
+                    hf_url,
+                    json={
+                        "data": [
+                            demand_dict.get('subject', ''),
+                            demand_dict.get('grade', ''),
+                            demand_dict.get('location', ''),
+                            demand_dict.get('budget', 0),
+                            demand_dict.get('description', ''),
+                            demand_dict.get('requirements', ''),
+                            json.dumps(candidate_dicts, ensure_ascii=False)
+                        ]
+                    },
+                    timeout=120
+                )
+                hf_resp.raise_for_status()
+                results = json.loads(hf_resp.json()['data'][0])
+            else:
+                import sys
+                project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                if project_root not in sys.path:
+                    sys.path.insert(0, project_root)
+                from ai_module.agent import MatchAgent
+                agent = MatchAgent()
+                results = agent.match(demand_dict, candidate_dicts)
 
             # 4. 充实结果 — 附加完整家教信息
             enriched = []
