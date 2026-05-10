@@ -55,6 +55,9 @@ app.register_blueprint(payment_bp, url_prefix='/api/payment')
 from routes.tutor_search import tutor_search_bp
 app.register_blueprint(tutor_search_bp, url_prefix='/api/tutor')
 
+from routes.ai_assistant import ai_assistant_bp
+app.register_blueprint(ai_assistant_bp, url_prefix='/api/ai_assistant')
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
