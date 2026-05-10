@@ -29,6 +29,31 @@ const routes = [
     component: () => import('../views/ProfilePage.vue'),
     meta: { auth: true }
   },
+  {
+    path: '/messages', name: 'Messages',
+    component: () => import('../views/MessagePage.vue'),
+    meta: { auth: true }
+  },
+  {
+    path: '/messages/:partner_id', name: 'Chat',
+    component: () => import('../views/MessagePage.vue'),
+    meta: { auth: true }
+  },
+  {
+    path: '/resources', name: 'Resources',
+    component: () => import('../views/ResourcePage.vue'),
+    meta: { auth: true }
+  },
+  {
+    path: '/payments', name: 'Payments',
+    component: () => import('../views/PaymentPage.vue'),
+    meta: { auth: true }
+  },
+  {
+    path: '/ai-assistant', name: 'AIAssistant',
+    component: () => import('../views/AIAssistantPage.vue'),
+    meta: { auth: true }
+  },
   { path: '/', redirect: '/dashboard' },
   { path: '/:pathMatch(.*)', redirect: '/dashboard' }
 ]
