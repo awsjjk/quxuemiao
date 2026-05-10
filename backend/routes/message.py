@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, User, Message
+from models import db, User, Parent, Tutor, Message
 
 message_bp = Blueprint('message', __name__)
 
@@ -47,10 +47,19 @@ def search_user():
     ).first()
     if not user:
         return jsonify({"code": 404, "msg": "用户不存在"}), 404
+    real_name = None
+    if user.user_type == 1:
+        p = Parent.query.filter_by(user_id=user.id).first()
+        real_name = p.real_name if p else None
+    elif user.user_type == 2:
+        t = Tutor.query.filter_by(user_id=user.id).first()
+        real_name = t.real_name if t else None
+
     return jsonify({"code": 200, "data": {
         "id": user.id,
         "username": user.username,
         "user_type": user.user_type,
+        "real_name": real_name or user.username,
         "role_text": {1: "家长", 2: "家教", 3: "管理员"}.get(user.user_type, "")
     }}), 200
 

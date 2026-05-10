@@ -41,7 +41,10 @@
       <div v-else>
         <div class="flex items-center gap-3 mb-4">
           <button @click="activePartner = null" class="text-gray-500 hover:text-gray-700"><i class="fa fa-arrow-left"></i></button>
-          <h2 class="text-lg font-bold text-gray-800">{{ activePartnerName }}</h2>
+          <div>
+            <h2 class="text-lg font-bold text-gray-800">{{ activePartnerRealName }}</h2>
+            <p class="text-xs text-gray-400">@{{ activePartnerUsername }}</p>
+          </div>
         </div>
         <div class="bg-white rounded-xl card-shadow p-4 h-96 overflow-y-auto mb-4 space-y-3" ref="chatBox">
           <div v-for="m in messages" :key="m.id" :class="m.sender_id === myId ? 'flex justify-end' : 'flex justify-start'">
@@ -65,7 +68,7 @@ import { useAuthStore } from '../stores/auth'
 import { messageAPI } from '../api'
 const route = useRoute(); const auth = useAuthStore()
 const convs = ref([])
-const activePartner = ref(null); const activePartnerName = ref('')
+const activePartner = ref(null); const activePartnerName = ref(''); const activePartnerRealName = ref(''); const activePartnerUsername = ref('')
 const messages = ref([]); const newMsg = ref(''); const newPartnerName = ref('')
 const chatBox = ref(null); const searchError = ref('')
 const myId = ref(0)
@@ -80,7 +83,7 @@ onMounted(async () => {
     const name = route.query.username
     try {
       const userRes = await messageAPI.searchUser(name)
-      openChat(userRes.data.id, userRes.data.username)
+      openChat(userRes.data.id, userRes.data.real_name, userRes.data.username)
     } catch (e) {
       searchError.value = '用户不存在'
     }
@@ -97,19 +100,19 @@ async function startChat() {
   }
   try {
     const res = await messageAPI.searchUser(name)
-    openChat(res.data.id, res.data.username)
+    openChat(res.data.id, res.data.real_name, res.data.username)
     newPartnerName.value = ''
   } catch (e) {
     searchError.value = e.response?.data?.msg || '用户不存在'
   }
 }
 
-function openChat(id, name) { activePartner.value = id; activePartnerName.value = name; loadMessages() }
+function openChat(id, realName, username) { activePartner.value = id; activePartnerRealName.value = realName; activePartnerUsername.value = username; activePartnerName.value = realName; loadMessages() }
 async function loadMessages() { const res = await messageAPI.chat(activePartner.value); messages.value = res.data; await nextTick(); chatBox.value?.scrollTo(0, chatBox.value.scrollHeight) }
 async function sendMsg() {
   const content = newMsg.value.trim(); if (!content) return
   const partner = convs.value.find(c => c.partner_id === activePartner.value)
-  const receiverUsername = partner?.partner_name || activePartnerName.value
+  const receiverUsername = partner?.partner_name || activePartnerUsername.value
   await messageAPI.send({ receiver_username: receiverUsername, content, msg_type: 1 })
   newMsg.value = ''; loadMessages()
 }
