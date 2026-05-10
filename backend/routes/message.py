@@ -73,6 +73,7 @@ def conversations():
         result.append({
             'partner_id': pid,
             'partner_name': partner.username if partner else '未知',
+            'partner_role': {1: '家长', 2: '家教', 3: '管理员'}.get(partner.user_type, '') if partner else '',
             'last_message': last_msg.content[:50] if last_msg else '',
             'last_time': last_msg.create_time.isoformat() if last_msg else None,
             'unread': unread
