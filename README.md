@@ -421,6 +421,156 @@ ai_module/
 
 ---
 
+## 配置文件说明
+
+### 后端配置 — `backend/config.py`
+
+数据库连接与 JWT 认证的核心配置，所有值均可通过环境变量覆盖。
+
+| 字段 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `DATABASE_URL` | 环境变量 | — | 生产数据库连接串（优先使用）。支持 PostgreSQL，自动追加 `sslmode=disable` |
+| `MYSQL_USER` | 环境变量 | `root` | 本地 MySQL 用户名 |
+| `MYSQL_PASSWORD` | 环境变量 | `admin` | 本地 MySQL 密码 |
+| `MYSQL_HOST` | 环境变量 | `127.0.0.1` | 本地 MySQL 主机 |
+| `MYSQL_PORT` | 环境变量 | `3306` | 本地 MySQL 端口 |
+| `MYSQL_DB` | 环境变量 | `quxuemiao` | 本地 MySQL 数据库名 |
+| `JWT_SECRET_KEY` | 环境变量 | `quxuemiao-secret-key-change-in-prod` | JWT 签名密钥，生产环境务必修改 |
+| `JWT_ACCESS_TOKEN_EXPIRES` | 常量 | `86400` | JWT 令牌有效期（秒），默认 24 小时 |
+
+> **数据库切换逻辑**：存在 `DATABASE_URL` 时使用 PostgreSQL（生产），否则使用本地 MySQL。SQLAlchemy 屏蔽底层差异。
+
+---
+
+### AI 匹配配置 — `ai_module/config.yaml`
+
+控制 LLM 调用、Embedding 模型加载、RAG 检索和匹配参数。
+
+| 配置路径 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `llm.provider` | string | `deepseek` | LLM 提供商（deepseek / openai / qwen） |
+| `llm.api_key` | string | `${DEEPSEEK_API_KEY}` | API 密钥，运行时从环境变量读取 |
+| `llm.model` | string | `deepseek-v4-flash` | 模型名称 |
+| `llm.base_url` | string | `https://api.deepseek.com` | API 端点地址 |
+| `llm.temperature` | float | `0.3` | 生成温度，越低输出越确定 |
+| `llm.max_tokens` | int | `2000` | 单次最大输出 token 数 |
+| `embedding.model` | string | `BAAI/bge-small-zh-v1.5` | 本地 Embedding 模型名，首次运行自动下载 |
+| `embedding.device` | string | `cpu` | 推理设备（cpu / cuda） |
+| `rag.collection_name` | string | `tutor_knowledge` | ChromaDB 集合名 |
+| `rag.persist_dir` | string | `./ai_module/chroma_db` | 向量数据库持久化目录 |
+| `rag.top_k` | int | `10` | RAG 检索返回的最大文档数 |
+| `matching.max_candidates` | int | `50` | 规则初筛的候选池上限 |
+| `matching.top_n` | int | `5` | 最终返回的推荐家教数 |
+
+---
+
+### AI 助手配置 — `ai_assistant_config.yaml`
+
+控制 AI 助手聊天机器人的 LLM 参数、Embedding 模型和 FAQ 匹配策略。
+
+| 配置路径 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `llm.provider` | string | `deepseek` | LLM 提供商 |
+| `llm.api_key` | string | `${DEEPSEEK_API_KEY}` | API 密钥，从环境变量读取 |
+| `llm.model` | string | `deepseek-v4-flash` | 模型名称 |
+| `llm.base_url` | string | `https://api.deepseek.com` | API 端点地址 |
+| `llm.temperature` | float | `0.1` | 生成温度，助手回答需更确定，故设为 0.1 |
+| `llm.max_tokens` | int | `300` | 单次最大输出 token 数，助手回答短小精简 |
+| `llm.top_p` | float | `0.9` | 核采样参数 |
+| `embedding.model` | string | `BAAI/bge-small-zh-v1.5` | 本地 Embedding 模型 |
+| `embedding.device` | string | `cpu` | 推理设备 |
+| `faq.faq_data_path` | string | `ai_assistant_data/faq.json` | FAQ 数据文件路径 |
+| `faq.similarity_threshold` | float | `0.75` | FAQ 匹配阈值。用户问题与 FAQ 余弦相似度 ≥ 此值时直接返回 FAQ 答案，否则走 LLM 兜底 |
+
+---
+
+### FAQ 数据 — `ai_assistant_data/faq.json`
+
+13 条预置常见问题，覆盖 4 个类别（平台介绍、操作指南、家教相关、费用相关）。每条记录结构：
+
+| 字段 | 说明 |
+|---|---|
+| `id` | 唯一标识，格式 `faq_001` ~ `faq_013` |
+| `question` | 问题文本 |
+| `answer` | 预设回答 |
+| `keywords` | 关键词数组，用于向量检索增强 |
+| `category` | 分类：平台介绍 / 操作指南 / 家教相关 / 费用相关 |
+
+---
+
+### 前端构建配置 — `frontend/vite.config.js`
+
+| 字段 | 值 | 说明 |
+|---|---|---|
+| `server.port` | `5173` | 开发服务器端口 |
+| `server.proxy./api.target` | `http://127.0.0.1:5000` | API 代理目标（开发环境） |
+| `server.proxy./api.changeOrigin` | `true` | 修改请求 Origin 头 |
+
+---
+
+### 前端 API 客户端配置 — `frontend/src/api/index.js`
+
+| 字段 | 值 | 说明 |
+|---|---|---|
+| `baseURL` (开发) | `/api` | 走 Vite 代理到 localhost:5000 |
+| `baseURL` (生产) | `VITE_API_BASE_URL + /api` | 环境变量 `VITE_API_BASE_URL` 指向 Render 后端地址 |
+| `timeout` | `30000` | 请求超时 30 秒 |
+| JWT 注入 | `Authorization: Bearer <token>` | 请求拦截器自动从 localStorage 读取并注入 |
+| 401 处理 | 清除 token + 重定向 `/login` | 响应拦截器，令牌过期自动跳转登录页 |
+
+---
+
+### 前端依赖配置 — `frontend/package.json`
+
+| 字段 | 值 | 说明 |
+|---|---|---|
+| `type` | `module` | ES Module 模式 |
+| `engines.node` | `>=18` | Node.js 版本要求 |
+| `dependencies.axios` | `^1.16.0` | HTTP 客户端 |
+| `dependencies.pinia` | `^3.0.4` | 状态管理 |
+| `dependencies.vue` | `^3.5.32` | Vue 框架 |
+| `dependencies.vue-router` | `^4.6.4` | 前端路由 |
+| `devDependencies.vite` | `^6.2.7` | 构建工具 |
+| `devDependencies.@vitejs/plugin-vue` | `^5.2.3` | Vite Vue 插件 |
+
+---
+
+### 部署配置 — `render.yaml`
+
+Render 平台的服务和数据库声明。
+
+| 配置路径 | 值 | 说明 |
+|---|---|---|
+| `services[0].type` | `web` | 服务类型 |
+| `services[0].name` | `quxuemiao-api` | 服务名称 |
+| `services[0].env` | `python` | 运行环境 |
+| `services[0].region` | `oregon` | 部署区域 |
+| `services[0].buildCommand` | `pip install -r requirements.txt` | 构建命令 |
+| `services[0].startCommand` | `cd backend && gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2` | 启动命令（2 个 Gunicorn worker） |
+| `services[0].envVars[PYTHON_VERSION]` | `3.11.0` | Python 版本 |
+| `services[0].envVars[DATABASE_URL]` | 来自 `quxuemiao-db` 数据库 | 自动注入 PostgreSQL 连接串 |
+| `services[0].envVars[JWT_SECRET_KEY]` | `generateValue: true` | 自动生成 JWT 密钥 |
+| `services[0].envVars[DEEPSEEK_API_KEY]` | `sync: false` | 需手动在 Render Dashboard 设置 |
+| `services[0].envVars[HF_MATCH_API_URL]` | `sync: false` | 需手动在 Render Dashboard 设置 |
+| `databases[0].name` | `quxuemiao-db` | PostgreSQL 数据库实例名 |
+| `databases[0].plan` | `free` | 数据库套餐 |
+
+---
+
+### 部署配置 — `vercel.json`
+
+Vercel 前端静态托管配置。
+
+| 字段 | 值 | 说明 |
+|---|---|---|
+| `framework` | `null` | 无框架预设，纯静态站点 |
+| `installCommand` | `cd frontend && npm install` | 安装命令 |
+| `buildCommand` | `cd frontend && npm run build` | 构建命令 |
+| `outputDirectory` | `frontend/dist` | 构建产物目录 |
+| `rewrites` | `/(.*)` → `/index.html` | SPA fallback：所有路由重写到入口 HTML |
+
+---
+
 ## 本地开发
 
 ### 环境要求
